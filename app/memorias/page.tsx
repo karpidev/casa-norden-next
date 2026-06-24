@@ -13,6 +13,7 @@ const PEOPLE = [
     seed: "urquiza-mem",
     years: "1801 — 1870 · Estadista",
     name: "Justo José de Urquiza",
+    img: "/images/urquiza.jpg",
     text:
       "Gobernador de Entre Ríos, vencedor de Caseros y primer presidente constitucional de la Confederación Argentina. En 1849 fundó el Colegio del Uruguay, primer establecimiento secular del país. Su vida terminó en el Palacio San José, hoy monumento nacional.",
   },
@@ -20,6 +21,7 @@ const PEOPLE = [
     seed: "ramirez-mem",
     years: "1786 — 1821 · Caudillo",
     name: "Francisco Ramírez",
+    img: "/images/ramirez.jpg",
     text:
       "El «Supremo Entrerriano». Nacido en Concepción del Uruguay el 13 de marzo de 1786, creó en 1820 la República de Entre Ríos. Símbolo del federalismo, dio nombre a la plaza central de la ciudad.",
   },
@@ -27,6 +29,7 @@ const PEOPLE = [
     seed: "delfina-mem",
     years: "c. 1790 — 1839 · Figura legendaria",
     name: "La Delfina",
+    img: "/images/delfina-portrait.jpg",
     text:
       "Cautiva portuguesa y compañera de Francisco Ramírez. Su historia, entre el amor y la guerra, quedó grabada en la memoria popular. Según su acta de defunción, fue sepultada en el cementerio local del Arroyo de la China.",
   },
@@ -34,6 +37,7 @@ const PEOPLE = [
     seed: "bredeston-mem",
     years: "1933 — 2018 · Actor",
     name: "Guillermo Bredeston",
+    img: "/images/bredeston-portrait.jpg",
     text:
       "Querido actor del cine y la televisión argentina, nacido en Concepción del Uruguay. Su carrera de más de seis décadas lo convirtió en un emblema de su ciudad natal.",
   },
@@ -41,6 +45,7 @@ const PEOPLE = [
     seed: "chamot-mem",
     years: "1969 · Futbolista",
     name: "José Antonio Chamot",
+    img: "/images/chamot-portrait.jpg",
     text:
       "Defensor nacido en la ciudad, disputó tres Mundiales consecutivos con la Selección Argentina —1994, 1998 y 2002—, una marca reservada a muy pocos. Orgullo deportivo de «La Histórica».",
   },
@@ -51,12 +56,12 @@ export default function MemoriasPage() {
     <main>
       <section className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
         <Image
-          src="https://picsum.photos/seed/memorias-hero/1920/1100?grayscale"
+          src="/images/casanorden-rio.jpg"
           fill
           priority
           sizes="100vw"
           className="hero-img object-cover"
-          alt=""
+          alt="Vista poética del Río Uruguay en Concepción del Uruguay"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/70" />
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex flex-col justify-center">
@@ -90,15 +95,16 @@ export default function MemoriasPage() {
             return (
               <article
                 key={p.seed}
+                id={`memorias-article-${p.seed}`}
                 className="grid md:grid-cols-2 gap-10 lg:gap-16 items-center card group reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
                   <Image
-                    src={`https://picsum.photos/seed/${p.seed}/800/600?grayscale`}
+                    src={p.img}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="card-img object-cover"
-                    alt=""
+                    alt={`Retrato representativo de ${p.name}`}
                   />
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
@@ -128,6 +134,7 @@ export default function MemoriasPage() {
           </h2>
           <Link
             href="/historia"
+            id="memorias-contact-btn"
             className="mt-8 btn-ghost inline-block border border-white/60 text-stone text-[11px] uppercase tracking-wide-nav px-9 py-4"
           >
             Contáctenos

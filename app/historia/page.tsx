@@ -33,12 +33,12 @@ export default function HistoriaPage() {
     <main>
       <section className="relative h-[80vh] min-h-[520px] w-full overflow-hidden">
         <Image
-          src="https://picsum.photos/seed/cdu-historia/1920/1200?grayscale"
+          src="/images/casanorden-rio.jpg"
           fill
           priority
           sizes="100vw"
           className="hero-img object-cover"
-          alt=""
+          alt="Río Uruguay al amanecer en Concepción del Uruguay"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70" />
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex flex-col justify-center">
@@ -75,11 +75,11 @@ export default function HistoriaPage() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative overflow-hidden aspect-[4/5] reveal">
             <Image
-              src="https://picsum.photos/seed/ciudad-rocamora/800/1000?grayscale"
+              src="/images/cdu-ciudad.jpg"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
-              alt=""
+              alt="Calle colonial de adoquines en Concepción del Uruguay"
             />
           </div>
           <div className="reveal">
@@ -136,6 +136,7 @@ export default function HistoriaPage() {
           </p>
           <a
             href="mailto:contacto@casanorden.com.ar"
+            id="historia-contact-btn"
             className="mt-9 btn-dark inline-block border border-ink/70 text-ink text-[11px] uppercase tracking-wide-nav px-9 py-4"
           >
             Contáctenos

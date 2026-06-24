@@ -5,7 +5,30 @@
 html { scroll-behavior: smooth; }
 body { background: #0c0c0d; }
 
-::selection { background: #0c0c0d; color: #f5f3ef; }
+/* Custom selection */
+::selection { background: #f5f3ef; color: #0c0c0d; }
+
+/* Premium custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0c0c0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2b;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3e3e40;
+}
+
+/* Keyboard accessibility focus outlines */
+a:focus-visible, button:focus-visible {
+  outline: 2px solid rgba(245, 243, 239, 0.4);
+  outline-offset: 4px;
+}
 
 /* Letter spacing helpers */
 .tracking-wide-nav { letter-spacing: 0.25em; }

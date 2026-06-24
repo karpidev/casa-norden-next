@@ -51,6 +51,7 @@ export default function Header() {
         <nav className="relative max-w-[1400px] mx-auto px-6 lg:px-10">
           <div className="flex items-center justify-between py-5">
             <button
+              id="header-menu-btn"
               className="flex items-center gap-3 text-[11px] uppercase tracking-wide-nav font-light"
               aria-label="Menú"
               onClick={() => setOpen((v) => !v)}
@@ -62,7 +63,7 @@ export default function Header() {
               <span className="hidden sm:inline">Menú</span>
             </button>
 
-            <Link href="/" className="absolute left-1/2 -translate-x-1/2">
+            <Link href="/" id="header-logo-link" className="absolute left-1/2 -translate-x-1/2">
               <Image
                 src="/logo-casa-norden.png"
                 alt="Casa Norden"
@@ -74,6 +75,7 @@ export default function Header() {
             </Link>
 
             <button
+              id="header-search-btn"
               className="flex items-center gap-2 text-[11px] uppercase tracking-wide-nav font-light"
               aria-label="Buscar"
             >
@@ -99,6 +101,7 @@ export default function Header() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  id={`desktop-nav-link-${item.href.replace("/", "") || "home"}`}
                   className={`nav-link ${active ? "border-b border-current pb-1" : ""}`}
                 >
                   {item.label}
@@ -116,6 +119,7 @@ export default function Header() {
         style={{ backgroundColor: "#0c0c0d" }}
       >
         <button
+          id="menu-overlay-close-btn"
           onClick={() => setOpen(false)}
           className="absolute top-7 right-8 text-3xl font-light"
           aria-label="Cerrar"
@@ -127,6 +131,7 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
+              id={`overlay-nav-link-${item.href.replace("/", "") || "home"}`}
               className="hover:opacity-60 transition"
             >
               {item.label}

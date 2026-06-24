@@ -63,12 +63,12 @@ export default function FechasPage() {
     <main className="text-stone">
       <section className="relative h-[65vh] min-h-[440px] w-full overflow-hidden">
         <Image
-          src="https://picsum.photos/seed/fechas-hero/1920/1100?grayscale"
+          src="/images/cdu-ciudad.jpg"
           fill
           priority
           sizes="100vw"
           className="hero-img object-cover"
-          alt=""
+          alt="Calle histórica empedrada en Concepción del Uruguay"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-ink" />
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex flex-col justify-center">
@@ -93,8 +93,9 @@ export default function FechasPage() {
             {EVENTS.map((e, i) => {
               const right = i % 2 === 1;
               return (
-                <div
+                <article
                   key={e.year}
+                  id={`timeline-event-${e.year}`}
                   className={`relative md:grid md:grid-cols-2 md:gap-12 reveal ${
                     i === EVENTS.length - 1 ? "" : "mb-16 md:mb-20"
                   }`}
@@ -116,12 +117,12 @@ export default function FechasPage() {
                       right ? "md:order-1 md:text-right md:pr-12" : ""
                     }`}
                   >
-                    <h3 className="font-serif text-2xl text-stone">{e.title}</h3>
+                    <h2 className="font-serif text-2xl text-stone">{e.title}</h2>
                     <p className="mt-2 text-stone/60 font-light leading-relaxed">
                       {e.text}
                     </p>
                   </div>
-                </div>
+                </article>
               );
             })}
           </div>

@@ -12,6 +12,7 @@ const LEGENDS = [
     seed: "delfina-leyenda",
     tag: "Amor y guerra",
     title: "La Delfina",
+    img: "/images/delfina-portrait.jpg",
     text:
       "Cautiva portuguesa de cabellos rubios, supuesta hija ilegítima de un virrey del Brasil. Compañera inseparable de Francisco Ramírez, lo siguió en sus campañas y, tras su muerte, regresó a vagar por estas tierras. ¿Mito o leyenda? Su acta de defunción aún se conserva.",
   },
@@ -19,6 +20,7 @@ const LEGENDS = [
     seed: "salamanca-leyenda",
     tag: "Las aguas del misterio",
     title: "La Salamanca",
+    img: "/images/salamanca-leyenda.jpg",
     text:
       "Dicen que en las aguas de la Salamanca habita el «Mheribé», un fantasma de agua. Cuentan que un cacique minuán fue transformado en una criatura que no era ni hombre ni pez: sus piernas se volvieron cola, sus brazos aletas, su cabello escamas, antes de hundirse para siempre en la laguna.",
   },
@@ -26,6 +28,7 @@ const LEGENDS = [
     seed: "jinete-leyenda",
     tag: "El Arroyo El Gato",
     title: "El jinete invisible",
+    img: "/images/jinete-leyenda.jpg",
     text:
       "En el Arroyo El Gato, en el departamento Uruguay, los lugareños aseguran que de noche se escucha el trote de un jinete que nunca se ve. Una de las tantas creencias del pago chico que aún sobreviven en la voz de los más viejos.",
   },
@@ -36,12 +39,12 @@ export default function LeyendasPage() {
     <main className="text-stone">
       <section className="relative h-[75vh] min-h-[500px] w-full overflow-hidden">
         <Image
-          src="https://picsum.photos/seed/leyendas-niebla/1920/1200?grayscale"
+          src="/images/leyendas-niebla.jpg"
           fill
           priority
           sizes="100vw"
           className="hero-img object-cover"
-          alt=""
+          alt="Paisaje brumoso y misterioso en el Río Uruguay al atardecer"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-ink" />
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex flex-col justify-center">
@@ -65,15 +68,16 @@ export default function LeyendasPage() {
             return (
               <article
                 key={l.seed}
+                id={`legend-article-${l.seed}`}
                 className="leg grid md:grid-cols-2 gap-10 lg:gap-16 items-center reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
                   <Image
-                    src={`https://picsum.photos/seed/${l.seed}/800/600?grayscale`}
+                    src={l.img}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="leg-img object-cover grayscale"
-                    alt=""
+                    alt={`Ilustración de la leyenda de ${l.title}`}
                   />
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
@@ -95,11 +99,11 @@ export default function LeyendasPage() {
 
       <section className="relative h-[55vh] min-h-[380px] w-full overflow-hidden">
         <Image
-          src="https://picsum.photos/seed/rio-noche/1920/1000?grayscale"
+          src="/images/rio-noche.jpg"
           fill
           sizes="100vw"
           className="object-cover"
-          alt=""
+          alt="El Río Uruguay bajo un cielo estrellado y con reflejo lunar"
         />
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex flex-col justify-center items-center text-center">
@@ -108,6 +112,7 @@ export default function LeyendasPage() {
           </p>
           <Link
             href="/historia"
+            id="leyendas-history-btn"
             className="mt-8 btn-ghost inline-block border border-white/70 text-white text-[11px] uppercase tracking-wide-nav px-9 py-4 reveal"
           >
             La historia de la ciudad
