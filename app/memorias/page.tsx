@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import client from "@/tina/__generated__/client";
 
 export const metadata: Metadata = {
   title: "Memorias — Casa Norden",
@@ -8,50 +9,10 @@ export const metadata: Metadata = {
     "Memorias de las personas que dejaron su huella en Concepción del Uruguay, Entre Ríos.",
 };
 
-const PEOPLE = [
-  {
-    seed: "urquiza-mem",
-    years: "1801 — 1870 · Estadista",
-    name: "Justo José de Urquiza",
-    img: "/images/urquiza.jpg",
-    text:
-      "Gobernador de Entre Ríos, vencedor de Caseros y primer presidente constitucional de la Confederación Argentina. En 1849 fundó el Colegio del Uruguay, primer establecimiento secular del país. Su vida terminó en el Palacio San José, hoy monumento nacional.",
-  },
-  {
-    seed: "ramirez-mem",
-    years: "1786 — 1821 · Caudillo",
-    name: "Francisco Ramírez",
-    img: "/images/ramirez.jpg",
-    text:
-      "El «Supremo Entrerriano». Nacido en Concepción del Uruguay el 13 de marzo de 1786, creó en 1820 la República de Entre Ríos. Símbolo del federalismo, dio nombre a la plaza central de la ciudad.",
-  },
-  {
-    seed: "delfina-mem",
-    years: "c. 1790 — 1839 · Figura legendaria",
-    name: "La Delfina",
-    img: "/images/delfina-portrait.jpg",
-    text:
-      "Cautiva portuguesa y compañera de Francisco Ramírez. Su historia, entre el amor y la guerra, quedó grabada en la memoria popular. Según su acta de defunción, fue sepultada en el cementerio local del Arroyo de la China.",
-  },
-  {
-    seed: "bredeston-mem",
-    years: "1933 — 2018 · Actor",
-    name: "Guillermo Bredeston",
-    img: "/images/bredeston-portrait.jpg",
-    text:
-      "Querido actor del cine y la televisión argentina, nacido en Concepción del Uruguay. Su carrera de más de seis décadas lo convirtió en un emblema de su ciudad natal.",
-  },
-  {
-    seed: "chamot-mem",
-    years: "1969 · Futbolista",
-    name: "José Antonio Chamot",
-    img: "/images/chamot-portrait.jpg",
-    text:
-      "Defensor nacido en la ciudad, disputó tres Mundiales consecutivos con la Selección Argentina —1994, 1998 y 2002—, una marca reservada a muy pocos. Orgullo deportivo de «La Histórica».",
-  },
-];
+export default async function MemoriasPage() {
+  const res = await client.queries.memoriasConnection();
+  const people = res.data.memoriasConnection.edges?.map(edge => edge?.node) || [];
 
-export default function MemoriasPage() {
   return (
     <main>
       <section className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
@@ -90,22 +51,26 @@ export default function MemoriasPage() {
 
       <section className="bg-white py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 space-y-24">
-          {PEOPLE.map((p, i) => {
+          {people.map((p, i) => {
+            if (!p) return null;
             const reversed = i % 2 === 1;
+            const seed = p.id.split('/').pop()?.replace('.md', '') || `person-${p.name}`;
             return (
               <article
-                key={p.seed}
-                id={`memorias-article-${p.seed}`}
+                key={p.id}
+                id={`memorias-article-${seed}`}
                 className="grid md:grid-cols-2 gap-10 lg:gap-16 items-center card group reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
-                  <Image
-                    src={p.img}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="card-img object-cover"
-                    alt={`Retrato representativo de ${p.name}`}
-                  />
+                  {p.img && (
+                    <Image
+                      src={p.img}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="card-img object-cover"
+                      alt={`Retrato representativo de ${p.name}`}
+                    />
+                  )}
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
                   <p className="text-[11px] uppercase tracking-wide-nav text-ink/45 mb-3">

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import client from "@/tina/__generated__/client";
 
 export const metadata: Metadata = {
   title: "Lugares con Historia — Casa Norden",
@@ -8,42 +9,10 @@ export const metadata: Metadata = {
     "Los sitios históricos de Concepción del Uruguay: Palacio San José, Basílica de la Inmaculada, Plaza Ramírez y el Colegio del Uruguay.",
 };
 
-const PLACES = [
-  {
-    seed: "palacio",
-    tag: "Monumento Histórico Nacional",
-    title: "Palacio San José",
-    img: "/images/palacio-sanjose.jpg",
-    text:
-      "Residencia de Justo José de Urquiza, orgullo arquitectónico y escenario de su muerte en 1870. Hoy museo y testimonio del esplendor de la Confederación.",
-  },
-  {
-    seed: "basilica-l",
-    tag: "Consagrada en 1859",
-    title: "Basílica de la Inmaculada Concepción",
-    img: "/images/plaza-ramirez.jpg",
-    text:
-      "Filial de San Juan de Letrán en Roma, frente a la Plaza Ramírez. En su interior descansa el mausoleo con los restos del General Urquiza.",
-  },
-  {
-    seed: "plaza-ramirez",
-    tag: "Corazón de la ciudad",
-    title: "Plaza General Francisco Ramírez",
-    img: "/images/plaza-ramirez.jpg",
-    text:
-      "Al pie de su pirámide, Urquiza leyó en 1851 el célebre «Pronunciamiento» contra Rosas, dando inicio al camino hacia la Constitución Nacional.",
-  },
-  {
-    seed: "colegio",
-    tag: "Fundado en 1849",
-    title: "Colegio del Uruguay «J. J. de Urquiza»",
-    img: "/images/colegio.jpg",
-    text:
-      "Primer colegio laico, público y gratuito del país. Por sus aulas pasaron los presidentes Julio A. Roca, Victorino de la Plaza y Arturo Frondizi.",
-  },
-];
+export default async function LugaresPage() {
+  const res = await client.queries.lugaresConnection();
+  const places = res.data.lugaresConnection.edges?.map(edge => edge?.node) || [];
 
-export default function LugaresPage() {
   return (
     <main>
       <section className="relative h-[70vh] min-h-[480px] w-full overflow-hidden">
@@ -74,28 +43,34 @@ export default function LugaresPage() {
 
       <section className="bg-white py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 grid sm:grid-cols-2 gap-x-10 gap-y-16">
-          {PLACES.map((p) => (
-            <article key={p.seed} id={`places-card-${p.seed}`} className="card group reveal">
-              <div className="relative overflow-hidden aspect-[16/10]">
-                <Image
-                  src={p.img}
-                  fill
-                  sizes="(max-width: 640px) 100vw, 50vw"
-                  className="card-img object-cover"
-                  alt={`Fachada de ${p.title}`}
-                />
-              </div>
-              <p className="mt-6 text-[11px] uppercase tracking-wide-nav text-ink/45">
-                {p.tag}
-              </p>
-              <h2 className="mt-1 font-serif text-3xl md:text-4xl font-light">
-                {p.title}
-              </h2>
-              <p className="mt-4 text-ink/70 font-light leading-relaxed text-lg">
-                {p.text}
-              </p>
-            </article>
-          ))}
+          {places.map((p) => {
+            if (!p) return null;
+            const seed = p.id.split('/').pop()?.replace('.md', '') || `place-${p.title}`;
+            return (
+              <article key={p.id} id={`places-card-${seed}`} className="card group reveal">
+                <div className="relative overflow-hidden aspect-[16/10]">
+                  {p.img && (
+                    <Image
+                      src={p.img}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="card-img object-cover"
+                      alt={`Fachada de ${p.title}`}
+                    />
+                  )}
+                </div>
+                <p className="mt-6 text-[11px] uppercase tracking-wide-nav text-ink/45">
+                  {p.tag}
+                </p>
+                <h2 className="mt-1 font-serif text-3xl md:text-4xl font-light">
+                  {p.title}
+                </h2>
+                <p className="mt-4 text-ink/70 font-light leading-relaxed text-lg">
+                  {p.text}
+                </p>
+              </article>
+            );
+          })}
         </div>
       </section>
 

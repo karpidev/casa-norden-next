@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
+import client from "@/tina/__generated__/client";
 
 export const metadata: Metadata = {
   title: "Fechas Recordadas — Casa Norden",
@@ -7,58 +8,19 @@ export const metadata: Metadata = {
     "Línea de tiempo de los hechos que marcaron a Concepción del Uruguay, Entre Ríos.",
 };
 
-const EVENTS = [
-  {
-    year: "1783",
-    title: "Fundación de la ciudad",
-    text:
-      "El 25 de junio, Tomás de Rocamora funda Concepción del Uruguay a orillas del Arroyo de la China.",
-  },
-  {
-    year: "1786",
-    title: "Nace Francisco Ramírez",
-    text:
-      "El 13 de marzo nace el «Supremo Entrerriano», futuro creador de la República de Entre Ríos.",
-  },
-  {
-    year: "1820",
-    title: "La República de Entre Ríos",
-    text:
-      "Francisco Ramírez proclama la República de Entre Ríos, con capital en Concepción del Uruguay.",
-  },
-  {
-    year: "1849",
-    title: "El Colegio del Uruguay",
-    text:
-      "Urquiza funda el primer colegio laico, público y gratuito del país. Su edificio se habilita en 1851.",
-  },
-  {
-    year: "1851",
-    title: "El Pronunciamiento de Urquiza",
-    text:
-      "El 1 de mayo, frente a la Plaza Ramírez, Urquiza se pronuncia contra Rosas. Comienza el camino a la organización nacional.",
-  },
-  {
-    year: "1853",
-    title: "La Constitución Nacional",
-    text:
-      "Tras Caseros, se sanciona la Constitución de 1853, con Urquiza como primer presidente constitucional.",
-  },
-  {
-    year: "1870",
-    title: "El final de Urquiza",
-    text:
-      "El 11 de abril, Justo José de Urquiza es asesinado en el Palacio San José, cerrando una era.",
-  },
-  {
-    year: "1942",
-    title: "Patrimonio nacional",
-    text:
-      "La Basílica y el Colegio del Uruguay son declarados Monumentos Históricos Nacionales.",
-  },
-];
+export default async function FechasPage() {
+  const res = await client.queries.fechasConnection();
+  const rawEvents = res.data.fechasConnection.edges?.map(edge => edge?.node) || [];
+  
+  // Filtrar nulos y ordenar cronológicamente por año
+  const events = rawEvents
+    .filter((e): e is NonNullable<typeof e> => !!e)
+    .sort((a, b) => {
+      const yearA = parseInt(a.year) || 0;
+      const yearB = parseInt(b.year) || 0;
+      return yearA - yearB;
+    });
 
-export default function FechasPage() {
   return (
     <main className="text-stone">
       <section className="relative h-[65vh] min-h-[440px] w-full overflow-hidden">
@@ -90,14 +52,14 @@ export default function FechasPage() {
         <div className="max-w-4xl mx-auto px-6 lg:px-10">
           <div className="relative">
             <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-stone/15 md:-translate-x-1/2" />
-            {EVENTS.map((e, i) => {
+            {events.map((e, i) => {
               const right = i % 2 === 1;
               return (
                 <article
-                  key={e.year}
+                  key={e.id}
                   id={`timeline-event-${e.year}`}
                   className={`relative md:grid md:grid-cols-2 md:gap-12 reveal ${
-                    i === EVENTS.length - 1 ? "" : "mb-16 md:mb-20"
+                    i === events.length - 1 ? "" : "mb-16 md:mb-20"
                   }`}
                 >
                   <div

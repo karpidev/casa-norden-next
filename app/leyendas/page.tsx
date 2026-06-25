@@ -1,40 +1,17 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
+import client from "@/tina/__generated__/client";
 
 export const metadata: Metadata = {
   title: "Leyendas — Casa Norden",
   description: "Leyendas y mitos de Concepción del Uruguay y el Arroyo de la China.",
 };
 
-const LEGENDS = [
-  {
-    seed: "delfina-leyenda",
-    tag: "Amor y guerra",
-    title: "La Delfina",
-    img: "/images/delfina-portrait.jpg",
-    text:
-      "Cautiva portuguesa de cabellos rubios, supuesta hija ilegítima de un virrey del Brasil. Compañera inseparable de Francisco Ramírez, lo siguió en sus campañas y, tras su muerte, regresó a vagar por estas tierras. ¿Mito o leyenda? Su acta de defunción aún se conserva.",
-  },
-  {
-    seed: "salamanca-leyenda",
-    tag: "Las aguas del misterio",
-    title: "La Salamanca",
-    img: "/images/salamanca-leyenda.jpg",
-    text:
-      "Dicen que en las aguas de la Salamanca habita el «Mheribé», un fantasma de agua. Cuentan que un cacique minuán fue transformado en una criatura que no era ni hombre ni pez: sus piernas se volvieron cola, sus brazos aletas, su cabello escamas, antes de hundirse para siempre en la laguna.",
-  },
-  {
-    seed: "jinete-leyenda",
-    tag: "El Arroyo El Gato",
-    title: "El jinete invisible",
-    img: "/images/jinete-leyenda.jpg",
-    text:
-      "En el Arroyo El Gato, en el departamento Uruguay, los lugareños aseguran que de noche se escucha el trote de un jinete que nunca se ve. Una de las tantas creencias del pago chico que aún sobreviven en la voz de los más viejos.",
-  },
-];
+export default async function LeyendasPage() {
+  const res = await client.queries.leyendasConnection();
+  const legends = res.data.leyendasConnection.edges?.map(edge => edge?.node) || [];
 
-export default function LeyendasPage() {
   return (
     <main className="text-stone">
       <section className="relative h-[75vh] min-h-[500px] w-full overflow-hidden">
@@ -63,22 +40,26 @@ export default function LeyendasPage() {
 
       <section className="bg-ink py-24 lg:py-32">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 space-y-28">
-          {LEGENDS.map((l, i) => {
+          {legends.map((l, i) => {
+            if (!l) return null;
             const reversed = i % 2 === 1;
+            const seed = l.id.split('/').pop()?.replace('.md', '') || `legend-${i}`;
             return (
               <article
-                key={l.seed}
-                id={`legend-article-${l.seed}`}
+                key={l.id}
+                id={`legend-article-${seed}`}
                 className="leg grid md:grid-cols-2 gap-10 lg:gap-16 items-center reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
-                  <Image
-                    src={l.img}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="leg-img object-cover grayscale"
-                    alt={`Ilustración de la leyenda de ${l.title}`}
-                  />
+                  {l.img && (
+                    <Image
+                      src={l.img}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="leg-img object-cover grayscale"
+                      alt={`Ilustración de la leyenda de ${l.title}`}
+                    />
+                  )}
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
                   <p className="text-[11px] uppercase tracking-wide-nav text-stone/40 mb-3">
