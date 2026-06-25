@@ -92,15 +92,23 @@ async function verifyToken(token: string, teamDomain: string, expectedAud: strin
 
   // 4. Validar emisor (iss) y audiencia (aud)
   const normalizedTeamDomain = teamDomain.startsWith('http') ? teamDomain : `https://${teamDomain}`;
-  const cleanIss = (payload.iss || '').replace(/\/$/, '');
-  const cleanDomain = normalizedTeamDomain.replace(/\/$/, '');
+  const cleanIss = (payload.iss || '').trim().replace(/\/$/, '');
+  const cleanDomain = normalizedTeamDomain.trim().replace(/\/$/, '');
   
   if (cleanIss !== cleanDomain) {
     console.error(`[Cloudflare Access] Emisor (iss) inválido. Recibido: "${cleanIss}", Esperado: "${cleanDomain}"`);
     return false;
   }
-  if (payload.aud !== expectedAud) {
-    console.error(`[Cloudflare Access] Audiencia (aud) inválida. Recibido: "${payload.aud}", Esperado: "${expectedAud}"`);
+
+  const cleanReceivedAud = (payload.aud || '').trim().replace(/[^a-fA-F0-9]/g, '');
+  const cleanExpectedAud = expectedAud.trim().replace(/[^a-fA-F0-9]/g, '');
+
+  if (cleanReceivedAud !== cleanExpectedAud) {
+    console.error(`[Cloudflare Access] Audiencia (aud) inválida.
+Recibido original: "${payload.aud}" (limpio: "${cleanReceivedAud}")
+Esperado original: "${expectedAud}" (limpio: "${cleanExpectedAud}")
+Unicode Recibido: ${Array.from(payload.aud || '').map(c => (c as string).charCodeAt(0)).join(',')}
+Unicode Esperado: ${Array.from(expectedAud).map(c => c.charCodeAt(0)).join(',')}`);
     return false;
   }
 
