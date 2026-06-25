@@ -157,8 +157,8 @@ export async function onRequest(context: {
   next: () => Promise<Response>;
 }): Promise<Response> {
   const { request, env } = context;
-  const teamDomain = env.CLOUDFLARE_TEAM_DOMAIN;
-  const aud = env.CLOUDFLARE_APPLICATION_AUD;
+  const teamDomain = env.CLOUDFLARE_TEAM_DOMAIN?.trim();
+  const aud = env.CLOUDFLARE_APPLICATION_AUD?.trim();
 
   // Si no se encuentran configuradas las variables de entorno en el panel de Cloudflare,
   // asumimos que estamos en desarrollo local y permitimos el acceso mostrando un warning en la consola.
