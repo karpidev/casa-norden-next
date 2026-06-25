@@ -100,15 +100,18 @@ async function verifyToken(token: string, teamDomain: string, expectedAud: strin
     return false;
   }
 
-  const cleanReceivedAud = (payload.aud || '').trim().replace(/[^a-fA-F0-9]/g, '');
+  const audienceList = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
   const cleanExpectedAud = expectedAud.trim().replace(/[^a-fA-F0-9]/g, '');
 
-  if (cleanReceivedAud !== cleanExpectedAud) {
+  const hasValidAudience = audienceList.some((audItem) => {
+    if (typeof audItem !== 'string') return false;
+    return audItem.trim().replace(/[^a-fA-F0-9]/g, '') === cleanExpectedAud;
+  });
+
+  if (!hasValidAudience) {
     console.error(`[Cloudflare Access] Audiencia (aud) inválida.
-Recibido original: "${payload.aud}" (limpio: "${cleanReceivedAud}")
-Esperado original: "${expectedAud}" (limpio: "${cleanExpectedAud}")
-Unicode Recibido: ${Array.from(payload.aud || '').map(c => (c as string).charCodeAt(0)).join(',')}
-Unicode Esperado: ${Array.from(expectedAud).map(c => c.charCodeAt(0)).join(',')}`);
+Recibido original: ${JSON.stringify(payload.aud)}
+Esperado original: "${expectedAud}" (limpio: "${cleanExpectedAud}")`);
     return false;
   }
 
