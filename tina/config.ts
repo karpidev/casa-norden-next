@@ -18,6 +18,14 @@ export default defineConfig({
   // Get this from tina.io
   token: process.env.TINA_TOKEN || null,
 
+  search: isLocal ? undefined : {
+    tina: {
+      indexerToken: process.env.TINA_SEARCH_TOKEN || "",
+    },
+    indexBatchSize: 100,
+    maxSearchIndexFieldLength: 100,
+  },
+
   build: {
     outputFolder: "admin",
     publicFolder: "public",
