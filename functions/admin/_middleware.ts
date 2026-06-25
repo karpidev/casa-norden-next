@@ -103,7 +103,7 @@ async function verifyToken(token: string, teamDomain: string, expectedAud: strin
   const audienceList = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
   const cleanExpectedAud = expectedAud.trim().replace(/[^a-fA-F0-9]/g, '');
 
-  const hasValidAudience = audienceList.some((audItem) => {
+  const hasValidAudience = audienceList.some((audItem: any) => {
     if (typeof audItem !== 'string') return false;
     return audItem.trim().replace(/[^a-fA-F0-9]/g, '') === cleanExpectedAud;
   });
