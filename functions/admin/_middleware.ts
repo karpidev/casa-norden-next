@@ -56,6 +56,7 @@ function getCookie(cookieHeader: string, name: string): string | null {
 async function verifyToken(token: string, teamDomain: string, expectedAud: string): Promise<boolean> {
   const parts = token.split('.');
   if (parts.length !== 3) {
+    console.error('[Cloudflare Access] El token no tiene 3 partes.');
     return false;
   }
 
@@ -67,21 +68,25 @@ async function verifyToken(token: string, teamDomain: string, expectedAud: strin
   try {
     header = JSON.parse(base64UrlDecode(headerB64));
     payload = JSON.parse(base64UrlDecode(payloadB64));
-  } catch {
+  } catch (err) {
+    console.error('[Cloudflare Access] Error al decodificar cabecera o payload del token:', err);
     return false;
   }
 
   // 2. Validar que el algoritmo sea RS256
   if (header.alg !== 'RS256') {
+    console.error(`[Cloudflare Access] Algoritmo no soportado: ${header.alg}. Se esperaba RS256.`);
     return false;
   }
 
   // 3. Validar tiempos de expiración y activación
   const now = Math.floor(Date.now() / 1000);
   if (payload.exp && payload.exp < now) {
+    console.error(`[Cloudflare Access] Token expirado. exp: ${payload.exp}, now: ${now}, diff: ${now - payload.exp}s tarde.`);
     return false;
   }
   if (payload.nbf && payload.nbf > now) {
+    console.error(`[Cloudflare Access] Token no activo aún. nbf: ${payload.nbf}, now: ${now}.`);
     return false;
   }
 
@@ -91,9 +96,11 @@ async function verifyToken(token: string, teamDomain: string, expectedAud: strin
   const cleanDomain = normalizedTeamDomain.replace(/\/$/, '');
   
   if (cleanIss !== cleanDomain) {
+    console.error(`[Cloudflare Access] Emisor (iss) inválido. Recibido: "${cleanIss}", Esperado: "${cleanDomain}"`);
     return false;
   }
   if (payload.aud !== expectedAud) {
+    console.error(`[Cloudflare Access] Audiencia (aud) inválida. Recibido: "${payload.aud}", Esperado: "${expectedAud}"`);
     return false;
   }
 
@@ -108,6 +115,7 @@ async function verifyToken(token: string, teamDomain: string, expectedAud: strin
   // Buscar la clave pública con el kid correspondiente
   const jwk = jwks.keys.find((key) => key.kid === header.kid);
   if (!jwk) {
+    console.error(`[Cloudflare Access] No se encontró clave pública para el kid: ${header.kid}`);
     return false;
   }
 
@@ -134,6 +142,10 @@ async function verifyToken(token: string, teamDomain: string, expectedAud: strin
     signatureBytes,
     dataToVerify
   );
+
+  if (!isSignatureValid) {
+    console.error('[Cloudflare Access] La firma criptográfica del token no es válida.');
+  }
 
   return isSignatureValid;
 }
