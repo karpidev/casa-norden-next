@@ -58,6 +58,8 @@ export async function onRequest(context: {
 
       const prefix = directory ? (directory.endsWith('/') ? directory : `${directory}/`) : '';
 
+      console.log(`[R2 API GET] Listando directorio: "${directory}", prefijo: "${prefix}", límite: ${limit}, cursor: ${offset}`);
+
       const listed = await env.R2_BUCKET.list({
         prefix,
         limit: limit ? parseInt(limit, 10) : 20,
@@ -65,10 +67,17 @@ export async function onRequest(context: {
         delimiter: '/',
       });
 
+      console.log('[R2 API GET] list() completado.', {
+        hasListed: !!listed,
+        objectsCount: listed?.objects?.length,
+        prefixesCount: listed?.delimitedPrefixes?.length,
+        truncated: listed?.truncated
+      });
+
       const r2PublicUrl = (env.NEXT_PUBLIC_R2_PUBLIC_URL || '').replace(/\/$/, '');
 
       // Carpetas virtuales
-      const folders = listed.delimitedPrefixes.map((p) => {
+      const folders = (listed?.delimitedPrefixes || []).map((p) => {
         const folderName = p.slice(prefix.length, -1);
         return {
           id: p,
@@ -79,7 +88,7 @@ export async function onRequest(context: {
       });
 
       // Archivos reales
-      const files = listed.objects
+      const files = (listed?.objects || [])
         .filter((obj) => obj.key !== prefix) // Excluir la carpeta en sí
         .map((obj) => {
           const filename = obj.key.split('/').pop() || '';
@@ -167,15 +176,20 @@ export async function onRequest(context: {
 
     return new Response('Método HTTP no permitido.', { status: 405 });
   } catch (error: any) {
+    console.log('[R2 API ERROR] Error detectado en la ejecución:', error);
     console.error('Error en la Cloudflare Pages Function de S3/R2:', error);
     return new Response(
       JSON.stringify({
         error: 'Ocurrió un error inesperado al procesar la solicitud en el servidor.',
         details: error?.message || String(error),
+        stack: error?.stack || null
       }),
       {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-store'
+        },
       }
     );
   }
