@@ -51,7 +51,7 @@ export default async function LeyendasPage() {
                 className="leg grid md:grid-cols-2 gap-10 lg:gap-16 items-center reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
-                  {l.img && (
+                  {l.img ? (
                     <Image
                       src={l.img}
                       fill
@@ -59,7 +59,7 @@ export default async function LeyendasPage() {
                       className="leg-img object-cover grayscale"
                       alt={`Ilustración de la leyenda de ${l.title}`}
                     />
-                  )}
+                  ) : null}
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
                   <p className="text-[11px] uppercase tracking-wide-nav text-stone/40 mb-3">

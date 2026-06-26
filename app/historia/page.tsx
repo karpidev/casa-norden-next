@@ -16,7 +16,7 @@ export default async function HistoriaPage() {
   return (
     <main>
       <section className="relative h-[80vh] min-h-[520px] w-full overflow-hidden">
-        {data.heroImg && (
+        {data.heroImg ? (
           <Image
             src={data.heroImg}
             fill
@@ -25,7 +25,7 @@ export default async function HistoriaPage() {
             className="hero-img object-cover"
             alt="Río Uruguay al amanecer en Concepción del Uruguay"
           />
-        )}
+        ) : null}
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/70" />
         <div className="relative h-full max-w-[1400px] mx-auto px-6 lg:px-10 flex flex-col justify-center">
           <p className="eyebrow text-[11px] uppercase text-white/80 mb-6 reveal in">
@@ -54,7 +54,7 @@ export default async function HistoriaPage() {
       <section className="bg-white py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative overflow-hidden aspect-[4/5] reveal">
-            {data.subImg && (
+            {data.subImg ? (
               <Image
                 src={data.subImg}
                 fill
@@ -62,7 +62,7 @@ export default async function HistoriaPage() {
                 className="object-cover"
                 alt="Calle colonial de adoquines en Concepción del Uruguay"
               />
-            )}
+            ) : null}
           </div>
           <div className="reveal">
             <p className="text-[11px] uppercase tracking-wide-nav text-ink/45 mb-4">

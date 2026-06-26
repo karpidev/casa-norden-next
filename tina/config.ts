@@ -40,7 +40,73 @@ export default defineConfig({
     : {
         loadCustomStore: async () => {
           const pack = await import("next-tinacms-s3");
-          return pack.TinaCloudS3MediaStore;
+          
+          const optimizeImageInBrowser = async (file: File, maxWidth = 1600, quality = 0.8): Promise<File> => {
+            if (!file.type.startsWith('image/') || file.type === 'image/gif') {
+              return file;
+            }
+            return new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (event) => {
+                const img = new window.Image();
+                img.onload = () => {
+                  let width = img.width;
+                  let height = img.height;
+                  if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                  }
+                  const canvas = document.createElement('canvas');
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  if (!ctx) {
+                    resolve(file);
+                    return;
+                  }
+                  ctx.drawImage(img, 0, 0, width, height);
+                  canvas.toBlob((blob) => {
+                    if (!blob) {
+                      resolve(file);
+                      return;
+                    }
+                    const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
+                    const newFile = new File([blob], `${nameWithoutExt}.webp`, {
+                      type: 'image/webp',
+                      lastModified: Date.now(),
+                    });
+                    resolve(newFile);
+                  }, 'image/webp', quality);
+                };
+                img.src = event.target?.result as string;
+              };
+              reader.readAsDataURL(file);
+            });
+          };
+
+          class OptimizedS3MediaStore extends pack.TinaCloudS3MediaStore {
+            async persist(media: any[]) {
+              const optimizedMedia = await Promise.all(
+                media.map(async (item) => {
+                  if (item.file && item.file.type.startsWith("image/")) {
+                    try {
+                      const optimizedFile = await optimizeImageInBrowser(item.file);
+                      return {
+                        ...item,
+                        file: optimizedFile,
+                      };
+                    } catch (err) {
+                      console.error("Error optimizando imagen en el navegador:", err);
+                    }
+                  }
+                  return item;
+                })
+              );
+              return super.persist(optimizedMedia);
+            }
+          }
+
+          return OptimizedS3MediaStore;
         },
       },
   // See docs on content modeling for more info on how to setup new content models: https://tina.io/docs/r/content-modelling-collections/

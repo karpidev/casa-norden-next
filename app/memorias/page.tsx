@@ -62,7 +62,7 @@ export default async function MemoriasPage() {
                 className="grid md:grid-cols-2 gap-10 lg:gap-16 items-center card group reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
-                  {p.img && (
+                  {p.img ? (
                     <Image
                       src={p.img}
                       fill
@@ -70,7 +70,7 @@ export default async function MemoriasPage() {
                       className="card-img object-cover"
                       alt={`Retrato representativo de ${p.name}`}
                     />
-                  )}
+                  ) : null}
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
                   <p className="text-[11px] uppercase tracking-wide-nav text-ink/45 mb-3">

@@ -49,7 +49,7 @@ export default async function LugaresPage() {
             return (
               <article key={p.id} id={`places-card-${seed}`} className="card group reveal">
                 <div className="relative overflow-hidden aspect-[16/10]">
-                  {p.img && (
+                  {p.img ? (
                     <Image
                       src={p.img}
                       fill
@@ -57,7 +57,7 @@ export default async function LugaresPage() {
                       className="card-img object-cover"
                       alt={`Fachada de ${p.title}`}
                     />
-                  )}
+                  ) : null}
                 </div>
                 <p className="mt-6 text-[11px] uppercase tracking-wide-nav text-ink/45">
                   {p.tag}

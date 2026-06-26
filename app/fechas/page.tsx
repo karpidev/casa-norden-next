@@ -13,8 +13,7 @@ export default async function FechasPage() {
   const rawEvents = res.data.fechasConnection.edges?.map(edge => edge?.node) || [];
   
   // Filtrar nulos y ordenar cronológicamente por año
-  const events = rawEvents
-    .filter((e): e is NonNullable<typeof e> => !!e)
+  const events = [...rawEvents.filter((e): e is NonNullable<typeof e> => !!e)]
     .sort((a, b) => {
       const yearA = parseInt(a.year) || 0;
       const yearB = parseInt(b.year) || 0;
