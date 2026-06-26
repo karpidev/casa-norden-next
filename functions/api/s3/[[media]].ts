@@ -72,9 +72,13 @@ export async function onRequest(context: {
         const uploadProxyUrl = `${url.origin}/api/s3/media/upload_file?key=${encodeURIComponent(key)}`;
         console.log(`[R2 API GET] Generando URL proxy de subida para: "${key}". Proxy: "${uploadProxyUrl}"`);
 
+        const r2PublicUrl = (env.NEXT_PUBLIC_R2_PUBLIC_URL || '').replace(/\/$/, '');
+        const publicUrl = r2PublicUrl ? `${r2PublicUrl}/${key}` : `/${key}`;
+
         return new Response(
           JSON.stringify({
-            url: uploadProxyUrl,
+            uploadUrl: uploadProxyUrl,
+            publicUrl: publicUrl,
           }),
           {
             headers: { 'Content-Type': 'application/json' },
