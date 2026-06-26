@@ -59,6 +59,30 @@ export async function onRequest(context: {
     // GET: Listar archivos y carpetas
     // -------------------------------------------------------------
     if (method === 'GET') {
+      const pathname = url.pathname.replace(/\/$/, '');
+
+      // Caso A: Solicitar URL de subida (upload_url)
+      if (pathname.endsWith('/api/s3/media/upload_url')) {
+        const key = url.searchParams.get('key');
+        if (!key) {
+          return new Response('Falta el parámetro key.', { status: 400 });
+        }
+
+        // Devolver una URL proxy local que apunta a nuestro propio endpoint PUT
+        const uploadProxyUrl = `${url.origin}/api/s3/media/upload_file?key=${encodeURIComponent(key)}`;
+        console.log(`[R2 API GET] Generando URL proxy de subida para: "${key}". Proxy: "${uploadProxyUrl}"`);
+
+        return new Response(
+          JSON.stringify({
+            url: uploadProxyUrl,
+          }),
+          {
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+
+      // Caso B: Listar archivos ordinarios
       const directory = url.searchParams.get('directory') || '';
       const limit = url.searchParams.get('limit');
       const offset = url.searchParams.get('offset') || undefined;
@@ -158,6 +182,36 @@ export async function onRequest(context: {
           headers: { 'Content-Type': 'application/json' },
         }
       );
+    }
+
+    // -------------------------------------------------------------
+    // PUT: Subir archivo usando el proxy de subida
+    // -------------------------------------------------------------
+    if (method === 'PUT') {
+      const pathname = url.pathname.replace(/\/$/, '');
+      if (pathname.endsWith('/api/s3/media/upload_file')) {
+        const key = url.searchParams.get('key');
+        if (!key) {
+          return new Response('Falta el parámetro key en la subida.', { status: 400 });
+        }
+
+        if (!request.body) {
+          return new Response('No se recibió cuerpo de archivo.', { status: 400 });
+        }
+
+        const contentType = request.headers.get('Content-Type') || 'application/octet-stream';
+        console.log(`[R2 API PUT] Subiendo archivo "${key}" al bucket de R2. Content-Type: ${contentType}`);
+
+        // Subir directamente el body stream al bucket de R2
+        await env.R2_BUCKET.put(key, request.body, {
+          httpMetadata: {
+            contentType,
+          },
+        });
+
+        console.log(`[R2 API PUT] Subida completada con éxito: "${key}"`);
+        return new Response(null, { status: 200 });
+      }
     }
 
     // -------------------------------------------------------------
