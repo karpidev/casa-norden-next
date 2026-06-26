@@ -330,6 +330,183 @@ export default defineConfig({
           },
         ],
       },
+      {
+        name: "home",
+        label: "Página Principal (Home)",
+        path: "content/home",
+        format: "md",
+        ui: {
+          allowedActions: {
+            create: false,
+            delete: false,
+          },
+        },
+        fields: [
+          // HERO
+          {
+            type: "string",
+            name: "heroEyebrow",
+            label: "Copete Hero",
+          },
+          {
+            type: "string",
+            name: "heroTitle",
+            label: "Título Hero",
+            ui: {
+              component: "textarea",
+            },
+          },
+          {
+            type: "string",
+            name: "heroText",
+            label: "Descripción Hero",
+            ui: {
+              component: "textarea",
+            },
+          },
+          {
+            type: "image",
+            name: "heroImg",
+            label: "Imagen de Fondo Hero",
+          },
+          // MEMORIAS DESTACADAS
+          {
+            type: "string",
+            name: "featuredMemoriesTitle",
+            label: "Título Memorias Destacadas",
+          },
+          {
+            type: "object",
+            name: "featuredMemories",
+            label: "Memorias Destacadas",
+            list: true,
+            fields: [
+              {
+                type: "string",
+                name: "name",
+                label: "Nombre",
+              },
+              {
+                type: "image",
+                name: "img",
+                label: "Imagen de Retrato",
+              },
+              {
+                type: "string",
+                name: "link",
+                label: "Enlace (Opcional, ej: /memorias)",
+              },
+            ],
+          },
+          // MEMORIAS QUE PERDURAN (ABOUT)
+          {
+            type: "string",
+            name: "aboutEyebrow",
+            label: "Copete Sobre Nosotros",
+          },
+          {
+            type: "string",
+            name: "aboutTitle",
+            label: "Título Sobre Nosotros",
+            ui: {
+              component: "textarea",
+            },
+          },
+          {
+            type: "string",
+            name: "aboutText",
+            label: "Descripción Sobre Nosotros",
+            ui: {
+              component: "textarea",
+            },
+          },
+          {
+            type: "image",
+            name: "aboutImg",
+            label: "Imagen Sobre Nosotros",
+          },
+          // LUGARES CON HISTORIA
+          {
+            type: "string",
+            name: "placesEyebrow",
+            label: "Copete Lugares",
+          },
+          {
+            type: "string",
+            name: "placesTitle",
+            label: "Título Lugares",
+            ui: {
+              component: "textarea",
+            },
+          },
+          {
+            type: "string",
+            name: "placesText",
+            label: "Descripción Lugares",
+            ui: {
+              component: "textarea",
+            },
+          },
+          {
+            type: "image",
+            name: "placesImg",
+            label: "Imagen de Fondo Lugares",
+          },
+          // MÁS DESTACADO (CARDS)
+          {
+            type: "string",
+            name: "moreFeaturedTitle",
+            label: "Título Más Destacado",
+          },
+          {
+            type: "object",
+            name: "moreFeatured",
+            label: "Tarjetas de Más Destacado",
+            list: true,
+            fields: [
+              {
+                type: "string",
+                name: "tag",
+                label: "Etiqueta (ej: Memorias, Lugares)",
+              },
+              {
+                type: "string",
+                name: "title",
+                label: "Título",
+              },
+              {
+                type: "image",
+                name: "img",
+                label: "Imagen",
+              },
+              {
+                type: "string",
+                name: "href",
+                label: "Enlace (ej: /memorias)",
+              },
+            ],
+          },
+          // CTA HISTORIA
+          {
+            type: "string",
+            name: "ctaEyebrow",
+            label: "Copete CTA",
+          },
+          {
+            type: "string",
+            name: "ctaTitle",
+            label: "Título CTA",
+            ui: {
+              component: "textarea",
+            },
+          },
+          {
+            type: "image",
+            name: "ctaImg",
+            label: "Imagen de Fondo CTA",
+          },
+        ],
+      },
     ],
   },
 });
