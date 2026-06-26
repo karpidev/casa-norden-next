@@ -77,8 +77,8 @@ export async function onRequest(context: {
 
         return new Response(
           JSON.stringify({
-            uploadUrl: uploadProxyUrl,
-            publicUrl: publicUrl,
+            signedUrl: uploadProxyUrl,
+            src: publicUrl,
           }),
           {
             headers: { 'Content-Type': 'application/json' },
