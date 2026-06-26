@@ -31,11 +31,18 @@ export async function onRequest(context: {
 }): Promise<Response> {
   const { request, env } = context;
 
-  // Verificar que el binding de R2 esté configurado
-  if (!env.R2_BUCKET) {
+  // Verificar que el binding de R2 esté configurado y sea válido
+  if (!env.R2_BUCKET || typeof env.R2_BUCKET.list !== 'function') {
+    const errorMsg = !env.R2_BUCKET 
+      ? 'El binding R2_BUCKET está indefinido en el entorno.' 
+      : `El binding R2_BUCKET es de tipo "${typeof env.R2_BUCKET}" (valor: "${String(env.R2_BUCKET)}"), pero se esperaba un bucket R2. Asegúrate de haberlo configurado en la sección "R2 bucket bindings" (Bindings de R2) en el panel de Cloudflare y no en la sección de "Environment variables" (Variables de entorno).`;
+    
+    console.log('[R2 API ERROR] Configuración incorrecta:', errorMsg);
+    
     return new Response(
       JSON.stringify({
-        error: 'El binding de Cloudflare R2 (R2_BUCKET) no está configurado en tu panel de Cloudflare Pages.',
+        error: 'El binding de Cloudflare R2 no está configurado correctamente en Cloudflare Pages.',
+        details: errorMsg,
       }),
       {
         status: 500,
