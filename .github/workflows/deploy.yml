@@ -7,14 +7,10 @@
 #
 # Secrets requeridos en GitHub → Settings → Secrets → Actions:
 #   CLOUDFLARE_API_TOKEN  : Token de API de Cloudflare con permisos de Pages
-#                           (Cloudflare → My Profile → API Tokens → Create Token
-#                            → usar plantilla "Edit Cloudflare Workers" o permisos:
-#                            Account - Cloudflare Pages: Edit)
-#   CLOUDFLARE_ACCOUNT_ID : ID de tu cuenta Cloudflare (panel → barra lateral inferior)
+#   CLOUDFLARE_ACCOUNT_ID : ID de tu cuenta Cloudflare
 #
-# Variables requeridas en GitHub → Settings → Variables → Actions:
-#   NEXT_PUBLIC_PAYLOAD_URL : URL pública del backend en Render
-#                             (ej: https://casa-norden-cms.onrender.com)
+# Variables opcionales en GitHub → Settings → Variables → Actions:
+#   NEXT_PUBLIC_PAYLOAD_URL : URL pública del backend (por defecto: https://admin.casanorden.com.ar)
 # ────────────────────────────────────────────────────────────────────────────
 
 name: 🚀 Deploy Frontend (Next.js) → Cloudflare Pages
@@ -48,8 +44,9 @@ jobs:
       - name: Build estático de Next.js
         run: npm run build
         env:
-          # URL del backend Payload CMS en producción (Render)
-          NEXT_PUBLIC_PAYLOAD_URL: ${{ vars.NEXT_PUBLIC_PAYLOAD_URL }}
+          # URL del backend Payload CMS en producción (usa variable o default)
+          NEXT_PUBLIC_PAYLOAD_URL: ${{ vars.NEXT_PUBLIC_PAYLOAD_URL != '' && vars.NEXT_PUBLIC_PAYLOAD_URL || 'https://admin.casanorden.com.ar' }}
+          PAYLOAD_URL: ${{ vars.NEXT_PUBLIC_PAYLOAD_URL != '' && vars.NEXT_PUBLIC_PAYLOAD_URL || 'https://admin.casanorden.com.ar' }}
           # Node.js necesita suficiente memoria para el build
           NODE_OPTIONS: '--max_old_space_size=4096'
 
