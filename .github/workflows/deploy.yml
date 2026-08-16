@@ -1,0 +1,69 @@
+# ────────────────────────────────────────────────────────────────────────────
+# GitHub Actions — Deploy del Frontend (Next.js) en Cloudflare Pages
+#
+# Trigger: push a la rama main
+# Método: build estático (next build → output: 'export') y upload a CF Pages
+#          usando Wrangler CLI oficial de Cloudflare.
+#
+# Secrets requeridos en GitHub → Settings → Secrets → Actions:
+#   CLOUDFLARE_API_TOKEN  : Token de API de Cloudflare con permisos de Pages
+#                           (Cloudflare → My Profile → API Tokens → Create Token
+#                            → usar plantilla "Edit Cloudflare Workers" o permisos:
+#                            Account - Cloudflare Pages: Edit)
+#   CLOUDFLARE_ACCOUNT_ID : ID de tu cuenta Cloudflare (panel → barra lateral inferior)
+#
+# Variables requeridas en GitHub → Settings → Variables → Actions:
+#   NEXT_PUBLIC_PAYLOAD_URL : URL pública del backend en Render
+#                             (ej: https://casa-norden-cms.onrender.com)
+# ────────────────────────────────────────────────────────────────────────────
+
+name: 🚀 Deploy Frontend (Next.js) → Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+
+  # Permite disparar el deploy manualmente desde la UI de GitHub
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build estático y deploy en Cloudflare Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Build estático de Next.js
+        run: npm run build
+        env:
+          # URL del backend Payload CMS en producción (Render)
+          NEXT_PUBLIC_PAYLOAD_URL: ${{ vars.NEXT_PUBLIC_PAYLOAD_URL }}
+          # Node.js necesita suficiente memoria para el build
+          NODE_OPTIONS: '--max_old_space_size=4096'
+
+      - name: Verificar que la carpeta out/ existe
+        run: |
+          if [ ! -d "out" ]; then
+            echo "❌ ERROR: La carpeta out/ no fue generada. Verificar next.config.mjs (output: 'export')."
+            exit 1
+          fi
+          echo "✅ Carpeta out/ encontrada con $(find out -name '*.html' | wc -l) páginas HTML."
+
+      - name: Deploy en Cloudflare Pages con Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy out --project-name=casa-norden --commit-dirty=true
