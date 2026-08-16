@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import client from "@/tina/__generated__/client";
+import { getLugares, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
   title: "Lugares con Historia — Casa Norden",
@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function LugaresPage() {
-  const res = await client.queries.lugaresConnection();
-  const places = res.data.lugaresConnection.edges?.map(edge => edge?.node) || [];
+  const places = await getLugares();
 
   return (
     <main>
@@ -45,13 +44,14 @@ export default async function LugaresPage() {
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 grid sm:grid-cols-2 gap-x-10 gap-y-16">
           {places.map((p) => {
             if (!p) return null;
-            const seed = p.id.split('/').pop()?.replace('.md', '') || `place-${p.title}`;
+            const seed = p.slug || `place-${p.id}`;
+            const placeImgUrl = getMediaUrl(p.img, "/images/colegio.jpg");
             return (
               <article key={p.id} id={`places-card-${seed}`} className="card group reveal">
                 <div className="relative overflow-hidden aspect-[16/10]">
-                  {p.img ? (
+                  {placeImgUrl ? (
                     <Image
-                      src={p.img}
+                      src={placeImgUrl}
                       fill
                       sizes="(max-width: 640px) 100vw, 50vw"
                       className="card-img object-cover"
@@ -59,15 +59,19 @@ export default async function LugaresPage() {
                     />
                   ) : null}
                 </div>
-                <p className="mt-6 text-[11px] uppercase tracking-wide-nav text-ink/45">
-                  {p.tag}
-                </p>
+                {p.tag ? (
+                  <p className="mt-6 text-[11px] uppercase tracking-wide-nav text-ink/45">
+                    {p.tag}
+                  </p>
+                ) : null}
                 <h2 className="mt-1 font-serif text-3xl md:text-4xl font-light">
                   {p.title}
                 </h2>
-                <p className="mt-4 text-ink/70 font-light leading-relaxed text-lg">
-                  {p.text}
-                </p>
+                {p.text ? (
+                  <p className="mt-4 text-ink/70 font-light leading-relaxed text-lg">
+                    {p.text}
+                  </p>
+                ) : null}
               </article>
             );
           })}

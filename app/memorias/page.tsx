@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import client from "@/tina/__generated__/client";
+import { getMemorias, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
   title: "Memorias — Casa Norden",
@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MemoriasPage() {
-  const res = await client.queries.memoriasConnection();
-  const people = res.data.memoriasConnection.edges?.map(edge => edge?.node) || [];
+  const people = await getMemorias();
 
   return (
     <main>
@@ -54,7 +53,8 @@ export default async function MemoriasPage() {
           {people.map((p, i) => {
             if (!p) return null;
             const reversed = i % 2 === 1;
-            const seed = p.id.split('/').pop()?.replace('.md', '') || `person-${p.name}`;
+            const seed = p.slug || `person-${p.id || i}`;
+            const personImgUrl = getMediaUrl(p.img, "/images/urquiza.jpg");
             return (
               <article
                 key={p.id}
@@ -62,9 +62,9 @@ export default async function MemoriasPage() {
                 className="grid md:grid-cols-2 gap-10 lg:gap-16 items-center card group reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
-                  {p.img ? (
+                  {personImgUrl ? (
                     <Image
-                      src={p.img}
+                      src={personImgUrl}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="card-img object-cover"
@@ -73,15 +73,19 @@ export default async function MemoriasPage() {
                   ) : null}
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
-                  <p className="text-[11px] uppercase tracking-wide-nav text-ink/45 mb-3">
-                    {p.years}
-                  </p>
+                  {p.years ? (
+                    <p className="text-[11px] uppercase tracking-wide-nav text-ink/45 mb-3">
+                      {p.years}
+                    </p>
+                  ) : null}
                   <h2 className="font-serif text-4xl md:text-5xl font-light leading-tight">
                     {p.name}
                   </h2>
-                  <p className="mt-5 text-ink/70 font-light leading-relaxed text-lg">
-                    {p.text}
-                  </p>
+                  {p.text ? (
+                    <p className="mt-5 text-ink/70 font-light leading-relaxed text-lg">
+                      {p.text}
+                    </p>
+                  ) : null}
                 </div>
               </article>
             );

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import client from "@/tina/__generated__/client";
+import { getLeyendas, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
   title: "Leyendas — Casa Norden",
@@ -9,8 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function LeyendasPage() {
-  const res = await client.queries.leyendasConnection();
-  const legends = res.data.leyendasConnection.edges?.map(edge => edge?.node) || [];
+  const legends = await getLeyendas();
 
   return (
     <main className="text-stone">
@@ -43,7 +42,8 @@ export default async function LeyendasPage() {
           {legends.map((l, i) => {
             if (!l) return null;
             const reversed = i % 2 === 1;
-            const seed = l.id.split('/').pop()?.replace('.md', '') || `legend-${i}`;
+            const seed = l.slug || `legend-${l.id || i}`;
+            const legendImgUrl = getMediaUrl(l.img, "/images/leyendas-niebla.jpg");
             return (
               <article
                 key={l.id}
@@ -51,9 +51,9 @@ export default async function LeyendasPage() {
                 className="leg grid md:grid-cols-2 gap-10 lg:gap-16 items-center reveal"
               >
                 <div className={`relative overflow-hidden aspect-[4/3] ${reversed ? "md:order-2" : ""}`}>
-                  {l.img ? (
+                  {legendImgUrl ? (
                     <Image
-                      src={l.img}
+                      src={legendImgUrl}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="leg-img object-cover grayscale"
@@ -62,15 +62,19 @@ export default async function LeyendasPage() {
                   ) : null}
                 </div>
                 <div className={reversed ? "md:order-1" : ""}>
-                  <p className="text-[11px] uppercase tracking-wide-nav text-stone/40 mb-3">
-                    {l.tag}
-                  </p>
+                  {l.tag ? (
+                    <p className="text-[11px] uppercase tracking-wide-nav text-stone/40 mb-3">
+                      {l.tag}
+                    </p>
+                  ) : null}
                   <h2 className="font-serif text-4xl md:text-5xl font-light text-stone leading-tight">
                     {l.title}
                   </h2>
-                  <p className="mt-5 text-stone/65 font-light leading-relaxed text-lg">
-                    {l.text}
-                  </p>
+                  {l.text ? (
+                    <p className="mt-5 text-stone/65 font-light leading-relaxed text-lg">
+                      {l.text}
+                    </p>
+                  ) : null}
                 </div>
               </article>
             );

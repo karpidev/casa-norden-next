@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import client from "@/tina/__generated__/client";
+import { getFechas } from "@/lib/payload";
 
 export const metadata: Metadata = {
   title: "Fechas Recordadas — Casa Norden",
@@ -9,16 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function FechasPage() {
-  const res = await client.queries.fechasConnection();
-  const rawEvents = res.data.fechasConnection.edges?.map(edge => edge?.node) || [];
-  
-  // Filtrar nulos y ordenar cronológicamente por año
-  const events = [...rawEvents.filter((e): e is NonNullable<typeof e> => !!e)]
-    .sort((a, b) => {
-      const yearA = parseInt(a.year) || 0;
-      const yearB = parseInt(b.year) || 0;
-      return yearA - yearB;
-    });
+  const events = await getFechas();
 
   return (
     <main className="text-stone">
@@ -55,7 +46,7 @@ export default async function FechasPage() {
               const right = i % 2 === 1;
               return (
                 <article
-                  key={e.id}
+                  key={e.id || e.year}
                   id={`timeline-event-${e.year}`}
                   className={`relative md:grid md:grid-cols-2 md:gap-12 reveal ${
                     i === events.length - 1 ? "" : "mb-16 md:mb-20"

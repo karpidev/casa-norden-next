@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Metadata } from "next";
-import client from "@/tina/__generated__/client";
+import { getHistoriaGlobal, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
   title: "La Historia Detrás de una Ciudad — Casa Norden",
@@ -9,16 +9,22 @@ export const metadata: Metadata = {
 };
 
 export default async function HistoriaPage() {
-  const res = await client.queries.historia({ relativePath: "info.md" });
-  const data = res.data.historia;
-  const values = data.values || [];
+  const data = await getHistoriaGlobal();
+
+  const hero = data?.hero || {};
+  const mission = data?.mission || {};
+  const vision = data?.vision || {};
+  const values = Array.isArray(data?.values) ? data.values : [];
+
+  const heroImgUrl = getMediaUrl(hero.img, "/images/casanorden-rio.jpg");
+  const subImgUrl = getMediaUrl(vision.subImg, "/images/cdu-ciudad.jpg");
 
   return (
     <main>
       <section className="relative h-[80vh] min-h-[520px] w-full overflow-hidden">
-        {data.heroImg ? (
+        {heroImgUrl ? (
           <Image
-            src={data.heroImg}
+            src={heroImgUrl}
             fill
             priority
             sizes="100vw"
@@ -32,31 +38,37 @@ export default async function HistoriaPage() {
             Quiénes somos
           </p>
           <h1 className="font-serif font-light text-white text-4xl md:text-6xl lg:text-7xl uppercase leading-none max-w-4xl reveal in">
-            {data.heroTitle}
+            {hero.title || "La historia detrás de una ciudad"}
           </h1>
-          <p className="mt-7 max-w-xl text-white/85 font-light text-lg leading-relaxed reveal in">
-            {data.heroText}
-          </p>
+          {hero.text ? (
+            <p className="mt-7 max-w-xl text-white/85 font-light text-lg leading-relaxed reveal in">
+              {hero.text}
+            </p>
+          ) : null}
         </div>
       </section>
 
       <section className="bg-stone py-24 lg:py-32">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="eyebrow text-[11px] uppercase text-ink/45 mb-8 text-center reveal">
-            {data.missionTitle}
-          </p>
-          <p className="font-serif text-2xl md:text-3xl font-light leading-relaxed text-ink/85 text-center reveal">
-            {data.missionText}
-          </p>
+          {mission.title ? (
+            <p className="eyebrow text-[11px] uppercase text-ink/45 mb-8 text-center reveal">
+              {mission.title}
+            </p>
+          ) : null}
+          {mission.text ? (
+            <p className="font-serif text-2xl md:text-3xl font-light leading-relaxed text-ink/85 text-center reveal">
+              {mission.text}
+            </p>
+          ) : null}
         </div>
       </section>
 
       <section className="bg-white py-20 lg:py-28">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-10 grid md:grid-cols-2 gap-12 lg:gap-20 items-center">
           <div className="relative overflow-hidden aspect-[4/5] reveal">
-            {data.subImg ? (
+            {subImgUrl ? (
               <Image
-                src={data.subImg}
+                src={subImgUrl}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
@@ -68,12 +80,16 @@ export default async function HistoriaPage() {
             <p className="text-[11px] uppercase tracking-wide-nav text-ink/45 mb-4">
               A orillas del Arroyo de la China
             </p>
-            <h2 className="font-serif text-4xl md:text-5xl font-light leading-tight">
-              {data.subTitle}
-            </h2>
-            <div className="mt-6 text-ink/70 font-light leading-relaxed text-lg whitespace-pre-line">
-              {data.subText}
-            </div>
+            {vision.subTitle ? (
+              <h2 className="font-serif text-4xl md:text-5xl font-light leading-tight">
+                {vision.subTitle}
+              </h2>
+            ) : null}
+            {vision.subText ? (
+              <div className="mt-6 text-ink/70 font-light leading-relaxed text-lg whitespace-pre-line">
+                {vision.subText}
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
