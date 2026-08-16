@@ -1,13 +1,35 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
+  "account_id": "011340e03100a0852e13fc4a01b0047e",
   "main": ".open-next/worker.js",
   "name": "casa-norden-next",
   "compatibility_date": "2026-06-09",
   "compatibility_flags": [
     "nodejs_compat"
   ],
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "58352368274748c6a7b63eaec89d57b3"
+    }
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "casa-norden-next"
+    }
+  ],
+  "images": {
+    "binding": "IMAGES"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
   }
 }
