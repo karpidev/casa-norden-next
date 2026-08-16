@@ -4,8 +4,11 @@ import type { Metadata } from "next";
 import { getLeyendas, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
-  title: "Leyendas — Casa Norden",
+  title: "Leyendas",
   description: "Leyendas y mitos de Concepción del Uruguay y el Arroyo de la China.",
+  alternates: {
+    canonical: "/leyendas",
+  },
 };
 
 export default async function LeyendasPage() {

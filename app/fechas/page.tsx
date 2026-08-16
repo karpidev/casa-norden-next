@@ -3,9 +3,12 @@ import type { Metadata } from "next";
 import { getFechas } from "@/lib/payload";
 
 export const metadata: Metadata = {
-  title: "Fechas Recordadas — Casa Norden",
+  title: "Fechas Recordadas",
   description:
     "Línea de tiempo de los hechos que marcaron a Concepción del Uruguay, Entre Ríos.",
+  alternates: {
+    canonical: "/fechas",
+  },
 };
 
 export default async function FechasPage() {

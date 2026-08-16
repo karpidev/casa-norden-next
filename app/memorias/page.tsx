@@ -4,9 +4,12 @@ import type { Metadata } from "next";
 import { getMemorias, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
-  title: "Memorias — Casa Norden",
+  title: "Memorias",
   description:
     "Memorias de las personas que dejaron su huella en Concepción del Uruguay, Entre Ríos.",
+  alternates: {
+    canonical: "/memorias",
+  },
 };
 
 export default async function MemoriasPage() {

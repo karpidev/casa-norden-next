@@ -4,9 +4,12 @@ import type { Metadata } from "next";
 import { getLugares, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
-  title: "Lugares con Historia — Casa Norden",
+  title: "Lugares con Historia",
   description:
     "Los sitios históricos de Concepción del Uruguay: Palacio San José, Basílica de la Inmaculada, Plaza Ramírez y el Colegio del Uruguay.",
+  alternates: {
+    canonical: "/lugares",
+  },
 };
 
 export default async function LugaresPage() {

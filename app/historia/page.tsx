@@ -3,9 +3,12 @@ import type { Metadata } from "next";
 import { getHistoriaGlobal, getMediaUrl } from "@/lib/payload";
 
 export const metadata: Metadata = {
-  title: "La Historia Detrás de una Ciudad — Casa Norden",
+  title: "La Historia Detrás de una Ciudad",
   description:
     "Casa Norden y la historia de Concepción del Uruguay, Entre Ríos. Quiénes somos.",
+  alternates: {
+    canonical: "/historia",
+  },
 };
 
 export default async function HistoriaPage() {

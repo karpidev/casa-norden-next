@@ -1,20 +1,24 @@
 /**
  * Cliente de integración para consumir la API REST de Payload CMS 3.0.
- * Optimizado para generación estática (SSG) en Next.js y Cloudflare Pages.
+ * Incorpora soporte para ISR On-Demand con Cache Tags semánticos.
  */
 
-const getPayloadUrl = () => {
+const getPayloadUrl = (): string => {
   const rawUrl = process.env.PAYLOAD_URL || process.env.NEXT_PUBLIC_PAYLOAD_URL;
   if (rawUrl && rawUrl.trim() !== '') {
     return rawUrl.trim().replace(/\/$/, '');
   }
-  // En producción (CI/CD o Cloudflare) apuntar directamente al backend en producción
+  // En producción apuntar al backend desplegado
   return process.env.NODE_ENV === 'production'
     ? 'https://admin.casanorden.com.ar'
     : 'http://localhost:3001';
 };
 
 const PAYLOAD_URL = getPayloadUrl();
+
+// 0 segundos en desarrollo (sin caché), 30 días en producción (delegado a invalidación On-Demand por webhooks)
+const REVALIDATE_TIME =
+  process.env.NODE_ENV === 'development' ? 0 : 30 * 24 * 60 * 60;
 
 export interface MediaDoc {
   id?: number | string;
@@ -25,8 +29,13 @@ export interface MediaDoc {
   height?: number;
 }
 
+export interface FetchPayloadOptions extends RequestInit {
+  tags?: string[];
+  revalidate?: number | false;
+}
+
 /**
- * Resuelve la URL pública de una imagen proveniente de Payload CMS o ruta local.
+ * Resuelve la URL pública de una imagen proveniente de Payload CMS, Cloudflare R2 o ruta local.
  */
 export function getMediaUrl(media?: MediaDoc | string | null, fallback = ''): string {
   if (!media) return fallback;
@@ -46,16 +55,33 @@ export function getMediaUrl(media?: MediaDoc | string | null, fallback = ''): st
 }
 
 /**
- * Ejecuta una petición HTTP con reintentos para soportar cold starts del backend (Render).
+ * Ejecuta una petición HTTP a Payload CMS con caché controlada por Tags y reintentos automáticos.
  */
-async function fetchPayload<T>(endpoint: string, options: RequestInit = {}, retries = 3): Promise<T> {
+async function fetchPayload<T>(
+  endpoint: string,
+  options: FetchPayloadOptions = {},
+  retries = 3
+): Promise<T> {
   const url = `${PAYLOAD_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+  const revalidate =
+    options.revalidate !== undefined ? options.revalidate : REVALIDATE_TIME;
+  const tags = options.tags || [];
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const res = await fetch(url, {
         ...options,
-        next: { revalidate: 60, ...options.next },
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'User-Agent': 'Mozilla/5.0 CasaNorden-Frontend/1.0',
+          ...(options.headers || {}),
+        },
+        next: {
+          revalidate,
+          tags,
+          ...options.next,
+        },
       });
 
       if (!res.ok) {
@@ -68,8 +94,8 @@ async function fetchPayload<T>(endpoint: string, options: RequestInit = {}, retr
         console.error(`[Payload API] Falló la petición a ${url} tras ${retries} intentos:`, error);
         throw error;
       }
-      // Esperar 4 segundos antes de reintentar (útil si Render está despertando)
-      await new Promise((resolve) => setTimeout(resolve, 4000));
+      // Esperar 2 segundos antes de reintentar (por si el backend está reactivándose)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
     }
   }
 
@@ -81,7 +107,9 @@ async function fetchPayload<T>(endpoint: string, options: RequestInit = {}, retr
  */
 export async function getHomeGlobal() {
   try {
-    return await fetchPayload<any>('/api/globals/home?depth=2');
+    return await fetchPayload<any>('/api/globals/home?depth=2', {
+      tags: ['global_home', 'home'],
+    });
   } catch (error) {
     console.error('Error al cargar Global Home:', error);
     return null;
@@ -93,7 +121,9 @@ export async function getHomeGlobal() {
  */
 export async function getHistoriaGlobal() {
   try {
-    return await fetchPayload<any>('/api/globals/historia?depth=1');
+    return await fetchPayload<any>('/api/globals/historia?depth=1', {
+      tags: ['global_historia', 'historia'],
+    });
   } catch (error) {
     console.error('Error al cargar Global Historia:', error);
     return null;
@@ -105,7 +135,10 @@ export async function getHistoriaGlobal() {
  */
 export async function getFechas() {
   try {
-    const res = await fetchPayload<{ docs: any[] }>('/api/fechas?limit=100&sort=order');
+    const res = await fetchPayload<{ docs: any[] }>(
+      '/api/fechas?limit=100&sort=order',
+      { tags: ['collection_fechas', 'fechas'] }
+    );
     return res.docs || [];
   } catch (error) {
     console.error('Error al cargar Fechas:', error);
@@ -118,7 +151,10 @@ export async function getFechas() {
  */
 export async function getLugares() {
   try {
-    const res = await fetchPayload<{ docs: any[] }>('/api/lugares?limit=100&depth=1');
+    const res = await fetchPayload<{ docs: any[] }>(
+      '/api/lugares?limit=100&depth=1',
+      { tags: ['collection_lugares', 'lugares'] }
+    );
     return res.docs || [];
   } catch (error) {
     console.error('Error al cargar Lugares:', error);
@@ -131,7 +167,10 @@ export async function getLugares() {
  */
 export async function getLeyendas() {
   try {
-    const res = await fetchPayload<{ docs: any[] }>('/api/leyendas?limit=100&depth=1');
+    const res = await fetchPayload<{ docs: any[] }>(
+      '/api/leyendas?limit=100&depth=1',
+      { tags: ['collection_leyendas', 'leyendas'] }
+    );
     return res.docs || [];
   } catch (error) {
     console.error('Error al cargar Leyendas:', error);
@@ -140,11 +179,14 @@ export async function getLeyendas() {
 }
 
 /**
- * Obtiene la lista de memorias (personajes).
+ * Obtiene la lista de memorias (personajes históricos).
  */
 export async function getMemorias() {
   try {
-    const res = await fetchPayload<{ docs: any[] }>('/api/memorias?limit=100&depth=1');
+    const res = await fetchPayload<{ docs: any[] }>(
+      '/api/memorias?limit=100&depth=1',
+      { tags: ['collection_memorias', 'memorias'] }
+    );
     return res.docs || [];
   } catch (error) {
     console.error('Error al cargar Memorias:', error);
