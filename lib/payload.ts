@@ -3,18 +3,16 @@
  * Incorpora soporte para ISR On-Demand con Cache Tags semánticos.
  */
 
-const getPayloadUrl = (): string => {
+export function getPayloadUrl(): string {
   const rawUrl = process.env.PAYLOAD_URL || process.env.NEXT_PUBLIC_PAYLOAD_URL;
   if (rawUrl && rawUrl.trim() !== '') {
     return rawUrl.trim().replace(/\/$/, '');
   }
-  // En producción apuntar al backend desplegado
-  return process.env.NODE_ENV === 'production'
-    ? 'https://admin.casanorden.com.ar'
-    : 'http://localhost:3001';
-};
-
-const PAYLOAD_URL = getPayloadUrl();
+  // En producción apuntar siempre al backend desplegado
+  return process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3001'
+    : 'https://admin.casanorden.com.ar';
+}
 
 // 0 segundos en desarrollo (sin caché), 30 días en producción (delegado a invalidación On-Demand por webhooks)
 const REVALIDATE_TIME =
@@ -39,17 +37,18 @@ export interface FetchPayloadOptions extends RequestInit {
  */
 export function getMediaUrl(media?: MediaDoc | string | null, fallback = ''): string {
   if (!media) return fallback;
+  const payloadUrl = getPayloadUrl();
   if (typeof media === 'string') {
     if (media.startsWith('http://') || media.startsWith('https://') || media.startsWith('/')) {
       return media;
     }
-    return `${PAYLOAD_URL}${media.startsWith('/') ? '' : '/'}${media}`;
+    return `${payloadUrl}${media.startsWith('/') ? '' : '/'}${media}`;
   }
   if (media.url) {
     if (media.url.startsWith('http://') || media.url.startsWith('https://')) {
       return media.url;
     }
-    return `${PAYLOAD_URL}${media.url.startsWith('/') ? '' : '/'}${media.url}`;
+    return `${payloadUrl}${media.url.startsWith('/') ? '' : '/'}${media.url}`;
   }
   return fallback;
 }
@@ -62,7 +61,8 @@ async function fetchPayload<T>(
   options: FetchPayloadOptions = {},
   retries = 3
 ): Promise<T> {
-  const url = `${PAYLOAD_URL}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+  const payloadUrl = getPayloadUrl();
+  const url = `${payloadUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
   const revalidate =
     options.revalidate !== undefined ? options.revalidate : REVALIDATE_TIME;
   const tags = options.tags || [];
