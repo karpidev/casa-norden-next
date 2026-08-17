@@ -17,6 +17,10 @@
     {
       "binding": "NEXT_INC_CACHE_KV",
       "id": "58352368274748c6a7b63eaec89d57b3"
+    },
+    {
+      "binding": "NEXT_TAG_CACHE_KV",
+      "id": "58352368274748c6a7b63eaec89d57b3"
     }
   ],
   "assets": {

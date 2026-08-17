@@ -42,7 +42,7 @@ async function handleRevalidation(request: NextRequest) {
     }
 
     if (tag) {
-      revalidateTag(tag);
+      revalidateTag(tag, "default");
       revalidatedItems.tag = tag;
     }
 
