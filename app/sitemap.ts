@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
-export const dynamic = "force-dynamic";
-
+// Sin force-dynamic: el sitemap es cacheado en KV (REVALIDATE_TIME = 30 días)
+// y se invalida automáticamente via webhooks de Payload CMS cuando cambia contenido.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://casanorden.com.ar";
 

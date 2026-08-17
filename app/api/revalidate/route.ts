@@ -9,7 +9,17 @@ async function handleRevalidation(request: NextRequest) {
 
   // Validamos el token secreto para proteger el endpoint
   const validToken = process.env.REVALIDATION_TOKEN;
+
+  // Log de diagnóstico (visible en Cloudflare Dashboard → Worker Logs)
+  console.log("[Revalidate] Solicitud recibida:", {
+    tag,
+    path,
+    tokenConfigurado: Boolean(validToken),
+    tokenValido: secret === validToken,
+  });
+
   if (!validToken || secret !== validToken) {
+    console.warn("[Revalidate] Token inválido o no configurado. Rechazando.");
     return NextResponse.json(
       { message: "Token de revalidación inválido o no configurado" },
       { status: 401 }
@@ -32,9 +42,11 @@ async function handleRevalidation(request: NextRequest) {
     }
 
     if (tag) {
-      revalidateTag(tag, "default");
+      revalidateTag(tag);
       revalidatedItems.tag = tag;
     }
+
+    console.log("[Revalidate] Caché invalidada exitosamente:", revalidatedItems);
 
     return NextResponse.json({
       revalidated: true,
