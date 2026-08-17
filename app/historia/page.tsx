@@ -14,13 +14,13 @@ export const metadata: Metadata = {
 export default async function HistoriaPage() {
   const data = await getHistoriaGlobal();
 
-  const hero = data?.hero || {};
-  const mission = data?.mission || {};
-  const vision = data?.vision || {};
+  const hero = data?.hero;
+  const mission = data?.mission;
+  const vision = data?.vision;
   const values = Array.isArray(data?.values) ? data.values : [];
 
-  const heroImgUrl = getMediaUrl(hero.img, "/images/casanorden-rio.jpg");
-  const subImgUrl = getMediaUrl(vision.subImg, "/images/cdu-ciudad.jpg");
+  const heroImgUrl = getMediaUrl(hero?.img, "/images/casanorden-rio.jpg");
+  const subImgUrl = getMediaUrl(vision?.subImg, "/images/cdu-ciudad.jpg");
 
   return (
     <main>
@@ -41,9 +41,9 @@ export default async function HistoriaPage() {
             Quiénes somos
           </p>
           <h1 className="font-serif font-light text-white text-4xl md:text-6xl lg:text-7xl uppercase leading-none max-w-4xl reveal in">
-            {hero.title || "La historia detrás de una ciudad"}
+            {hero?.title || "La historia detrás de una ciudad"}
           </h1>
-          {hero.text ? (
+          {hero?.text ? (
             <p className="mt-7 max-w-xl text-white/85 font-light text-lg leading-relaxed reveal in">
               {hero.text}
             </p>
@@ -53,12 +53,12 @@ export default async function HistoriaPage() {
 
       <section className="bg-stone py-24 lg:py-32">
         <div className="max-w-3xl mx-auto px-6">
-          {mission.title ? (
+          {mission?.title ? (
             <p className="eyebrow text-[11px] uppercase text-ink/45 mb-8 text-center reveal">
               {mission.title}
             </p>
           ) : null}
-          {mission.text ? (
+          {mission?.text ? (
             <p className="font-serif text-2xl md:text-3xl font-light leading-relaxed text-ink/85 text-center reveal">
               {mission.text}
             </p>
@@ -83,12 +83,12 @@ export default async function HistoriaPage() {
             <p className="text-[11px] uppercase tracking-wide-nav text-ink/45 mb-4">
               A orillas del Arroyo de la China
             </p>
-            {vision.subTitle ? (
+            {vision?.subTitle ? (
               <h2 className="font-serif text-4xl md:text-5xl font-light leading-tight">
                 {vision.subTitle}
               </h2>
             ) : null}
-            {vision.subText ? (
+            {vision?.subText ? (
               <div className="mt-6 text-ink/70 font-light leading-relaxed text-lg whitespace-pre-line">
                 {vision.subText}
               </div>
@@ -103,7 +103,7 @@ export default async function HistoriaPage() {
             Nuestro <span className="font-medium">propósito</span>
           </h2>
           <div className="grid md:grid-cols-3 gap-12 lg:gap-16">
-            {values.map((v: any, index: number) => (
+            {values.map((v, index) => (
               <div key={v?.n || index} className="text-center reveal">
                 <p className="font-serif text-5xl text-stone/30 mb-4">{v?.n}</p>
                 <h3 className="font-serif text-2xl mb-3">{v?.title}</h3>
