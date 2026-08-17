@@ -12,6 +12,20 @@ const nextConfig = {
       { protocol: 'https', hostname: 'admin.casanorden.com.ar' },
     ],
   },
+  async headers() {
+    return [
+      {
+        // Aplicar a todas las rutas de páginas HTML (excluyendo estáticos cacheados por hash y APIs)
+        source: '/((?!api|_next/static|_next/image|favicon.ico).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
